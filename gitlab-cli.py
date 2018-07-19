@@ -1,0 +1,49 @@
+import argparse
+from gitlabapi.api import GitlabApi
+from pathlib import Path
+
+
+def read_url():
+    with open(str(Path.cwd()) + '/.git/config', 'r') as f:
+        for line in f:
+            if 'url = ' in line:
+                return line.lstrip('\turl= ').rstrip('\n')
+
+
+def read_branch():
+    with open(str(Path.cwd()) + '/.git/HEAD', 'r') as f:
+        return f.read(255).split('/')[-1].strip('\n')
+
+
+def read_api_key():
+    with open(str(Path.home()) + '/.gitlab-api-key', 'r') as f:
+        return f.read(255)
+
+
+def set_api_key(**kwargs):
+    with open(str(Path.home()) + '/.gitlab-api-key', 'w') as f:
+        f.write(kwargs['data'])
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('command', nargs=2)
+parser.add_argument('-s', '--source', nargs='?', default=read_branch())
+parser.add_argument('-d', '--destination', nargs='?', default='master')
+parser.add_argument('-a', '--assign', nargs='?')
+parser.add_argument('-n', '--name', nargs='?', default=read_branch())
+parser.add_argument('-dd', '--description', nargs='?')
+parser.add_argument('data', nargs='?')
+args = parser.parse_args()
+kwargs = vars(args)
+gitlab = GitlabApi(read_api_key(), read_url())
+
+functions = {
+    'set': {
+        'token': set_api_key
+    },
+    'create': {
+        'mr': gitlab.create_mr
+    }
+}
+
+functions[kwargs['command'][0]][kwargs['command'][1]](**kwargs)
