@@ -43,6 +43,14 @@ class GitlabApi(object):
             params['description'] = description
         return self._post_query('merge_requests', params)
 
+    def _create_issue(self, name, description):
+        params = {
+            'title': name
+        }
+        if description is not None:
+            params['description'] = description
+        return self._post_query('issues', params)
+
     def _get_user_id(self, name):
         return [user['id'] for user in self._get_query('users?per_page=300', False) if user['username'] == name][0]
 
@@ -54,4 +62,10 @@ class GitlabApi(object):
         mr = self._create_mr(kwargs['name'], kwargs['source'], kwargs['destination'], kwargs['description'])
         if kwargs['assign']:
             self._assign(kwargs['assign'], mr['iid'])
+
+    def create_issue(self, **kwargs):
+        issue = self._create_issue(kwargs['name'], kwargs['description'])
+        if kwargs['assign']:
+            self._assign(kwargs['assign'], issue['iid'])
+
 
