@@ -54,9 +54,15 @@ class GitlabApi(object):
     def _get_user_id(self, name):
         return [user['id'] for user in self._get_query('users?per_page=300', False) if user['username'] == name][0]
 
-    def _assign(self, name, iid, what='merge_requests'):
+    def _assign(self, name, iid, mr=True):
         user_id = self._get_user_id(name)
-        return self._put_query(what + '/' + str(iid), {'assignee_id': user_id})
+        if mr:
+            what = 'merge_requests'
+            params = {'assignee_id': user_id}
+        else:
+            what = 'issues'
+            params = {'assignee_ids': [user_id]}
+        return self._put_query(what + '/' + str(iid), params)
 
     def create_mr(self, **kwargs):
         mr = self._create_mr(kwargs['name'], kwargs['source'], kwargs['destination'], kwargs['description'])
@@ -66,6 +72,6 @@ class GitlabApi(object):
     def create_issue(self, **kwargs):
         issue = self._create_issue(kwargs['name'], kwargs['description'])
         if kwargs['assign']:
-            self._assign(kwargs['assign'], issue['iid'])
+            self._assign(kwargs['assign'], issue['iid'], False)
 
 
