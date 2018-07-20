@@ -37,6 +37,7 @@ parser.add_argument('-dd', '--description', nargs='?')
 parser.add_argument('data', nargs='?')
 args = parser.parse_args()
 kwargs = vars(args)
+
 gitlab = GitlabApi(read_api_key(), read_url())
 
 functions = {

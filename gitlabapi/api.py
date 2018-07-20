@@ -4,9 +4,12 @@ import json
 
 class GitlabApi(object):
     def __init__(self, api_key, project_url):
-        self.api_key = api_key
-        self.api_url = self._get_project_api_url(project_url)
-        self.project_id = self._get_project_id(project_url)
+        try:
+            self.api_key = api_key.strip('\n\r')
+            self.api_url = self._get_project_api_url(project_url)
+            self.project_id = self._get_project_id(project_url)
+        except Exception as error:
+            print('Did not manage to instantiate GitlabApi have you set you key?')
 
     def _get_query(self, url_append, project=True):
         if hasattr(self, 'project_id') and project:
