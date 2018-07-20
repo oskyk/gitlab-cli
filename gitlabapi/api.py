@@ -68,6 +68,8 @@ class GitlabApi(object):
         return self._put_query(what + '/' + str(iid), params)
 
     def create_mr(self, **kwargs):
+        if kwargs['wip']:
+            kwargs['name'] = '[WIP] {}'.format(kwargs['name'])
         mr = self._create_mr(kwargs['name'], kwargs['source'], kwargs['destination'], kwargs['description'])
         if kwargs['assign']:
             self._assign(kwargs['assign'], mr['iid'])
